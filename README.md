@@ -6,16 +6,16 @@ A custom Lovelace card for Home Assistant to display air quality data with healt
 ## Installation (via HACS)
 
 1. Go to HACS → Frontend → Menu (top right) → Custom Repositories
-2. Add the URL of your own GitHub repository (replace the placeholders below).
+2. Add this GitHub repository URL:
    Type: Lovelace
 
-   `https://github.com/<your-username>/<your-repository>`
+   `https://github.com/mschuetze/HA-AirQualityCard`
 
 3. Search for **AirQ Card** in HACS and install
 4. Add the following resource to your dashboard:
 
 ```yaml
-url: /hacsfiles/<repository-name>/airq-card.js
+url: /hacsfiles/HA-AirQualityCard/airq-card.js
 type: module
 ```
 

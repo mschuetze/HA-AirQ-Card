@@ -24,6 +24,7 @@ type: module
 ```yaml
 type: custom:airq-card
 title: Luftqualität
+room: Wohnzimmer
 columns: 2
 entities:
   co2: sensor.your_co2
@@ -33,6 +34,8 @@ entities:
   humidity: sensor.your_humidity
   rating: sensor.your_rating
 ```
+
+`room` ergänzt optional den Raumnamen im Kartentitel. Du kannst ihn im visuellen Editor als Text eingeben.
 
 `columns` legt die Anzahl der Sensor-Spalten fest. Wenn die Option fehlt, wird die Anzahl wie bisher automatisch anhand der Kartenbreite bestimmt. Die Einstellung ist auch im visuellen Editor verfügbar.
 

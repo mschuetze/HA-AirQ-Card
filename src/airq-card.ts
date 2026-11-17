@@ -12,6 +12,7 @@ export type SensorType = 'co2' | 'voc' | 'pm25' | 'temperature' | 'humidity' | '
 export interface AirQualityCardConfig {
   type: string;
   title?: string;
+  room?: string;
   columns?: number;
   entities: Partial<Record<SensorType, string>>;  // co2, voc, etc.
   show_bars?: SensorType[];  // explicitly typed for clarity
@@ -261,7 +262,7 @@ export class AirQualityCard extends LitElement {
   }
 
   render() {
-    const { title, entities } = this.config;
+    const { title, room, entities } = this.config;
     const show_bars: SensorType[] = this.config.show_bars ?? Object.keys(entities) as SensorType[];
     const barElements = show_bars
       .filter((key: SensorType) => SENSOR_THRESHOLDS[key])
@@ -300,6 +301,8 @@ export class AirQualityCard extends LitElement {
     }
 
     const displayedRating = rawState ? RATING_LABELS[ratingKey] || rawState : '';
+    const headerTitle = [title, room].filter(Boolean).join(' ');
+    const header = [headerTitle, displayedRating].filter(Boolean).join(' - ');
 
 
 
@@ -308,7 +311,7 @@ export class AirQualityCard extends LitElement {
       <ha-card>
         <div class="card-wrapper">
           <div class="header">
-            <div class="title">${title ? `${title} - ${displayedRating}` : displayedRating}</div>
+            <div class="title">${header}</div>
           </div>
           <div
             class="attributes"

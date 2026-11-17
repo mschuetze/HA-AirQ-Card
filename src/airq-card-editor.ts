@@ -74,6 +74,18 @@ export class AirQualityCardEditor extends LitElement {
           />
         </label>
         <label>
+          Room (optional)
+          <input
+            type="text"
+            .value=${this._config.room || ''}
+            @input=${(e: Event) => {
+              const input = e.target as HTMLInputElement;
+              this._config.room = input.value;
+              fireEvent(this, 'config-changed', { config: this._config });
+            }}
+          />
+        </label>
+        <label>
           Number of columns (leave blank for automatic)
           <input
             type="number"

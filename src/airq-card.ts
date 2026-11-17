@@ -95,8 +95,12 @@ export class AirQualityCard extends LitElement {
       margin-bottom: 12px;
     }
     .title {
-      margin-left: 70px;
-      font-weight: bold;
+      color: var(--ha-card-header-color, var(--primary-text-color));
+      font-family: var(--ha-card-header-font-family, inherit);
+      font-size: var(--ha-card-header-font-size, var(--ha-font-size-2xl));
+      letter-spacing: -0.012em;
+      line-height: var(--ha-line-height-condensed);
+      font-weight: var(--ha-font-weight-normal);
     }
     .attributes {
       display: grid;

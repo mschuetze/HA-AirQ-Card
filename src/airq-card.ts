@@ -12,8 +12,7 @@ export type SensorType = 'co2' | 'voc' | 'pm25' | 'temperature' | 'humidity' | '
 export interface AirQualityCardConfig {
   type: string;
   title?: string;
-  width?: string;  // e.g., "100%", "400px"
-  height?: string;
+  columns?: number;
   entities: Partial<Record<SensorType, string>>;  // co2, voc, etc.
   show_bars?: SensorType[];  // explicitly typed for clarity
   _customThresholds?: Record<SensorType, { min?: number; max?: number }>;
@@ -78,6 +77,9 @@ export class AirQualityCard extends LitElement {
 
   public setConfig(config: AirQualityCardConfig) {
     if (!config.entities) throw new Error('Entities required');
+    if (config.columns !== undefined && (!Number.isInteger(config.columns) || config.columns < 1)) {
+      throw new Error('Columns must be a positive integer');
+    }
     this.config = config;
   }
 
@@ -303,12 +305,17 @@ export class AirQualityCard extends LitElement {
 
 
     return html`
-      <ha-card style="width: ${this.config.width || '100%'}; height: ${this.config.height || 'auto'};">
+      <ha-card>
         <div class="card-wrapper">
           <div class="header">
             <div class="title">${title ? `${title} - ${displayedRating}` : displayedRating}</div>
           </div>
-          <div class="attributes">
+          <div
+            class="attributes"
+            style=${this.config.columns
+              ? `grid-template-columns: repeat(${this.config.columns}, minmax(0, 1fr));`
+              : ''}
+          >
             ${barElements}
           </div>
         </div>

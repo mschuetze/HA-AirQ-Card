@@ -24,6 +24,7 @@ type: module
 ```yaml
 type: custom:airq-card
 title: Luftqualität
+columns: 2
 entities:
   co2: sensor.your_co2
   voc: sensor.your_voc
@@ -32,6 +33,8 @@ entities:
   humidity: sensor.your_humidity
   rating: sensor.your_rating
 ```
+
+`columns` legt die Anzahl der Sensor-Spalten fest. Wenn die Option fehlt, wird die Anzahl wie bisher automatisch anhand der Kartenbreite bestimmt. Die Einstellung ist auch im visuellen Editor verfügbar.
 
   - OR you may use the UI for picking the entities
   - You may leave the Absolute MAX and MIN empty for predefined ranges or change them to what you like.

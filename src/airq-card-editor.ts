@@ -74,24 +74,22 @@ export class AirQualityCardEditor extends LitElement {
           />
         </label>
         <label>
-          Card Width (e.g. 100%, 300px)
+          Number of columns (leave blank for automatic)
           <input
-            type="text"
-            .value=${this._config.width || ''}
-            @input=${(e: any) => {
-              this._config.width = e.target.value;
-              fireEvent(this, 'config-changed', { config: this._config });
-            }}
-          />
-        </label>
-
-        <label>
-          Card Height (e.g. auto, 400px)
-          <input
-            type="text"
-            .value=${this._config.height || ''}
-            @input=${(e: any) => {
-              this._config.height = e.target.value;
+            type="number"
+            min="1"
+            step="1"
+            placeholder="Automatic"
+            .value=${this._config.columns ?? ''}
+            @input=${(e: Event) => {
+              const input = e.target as HTMLInputElement;
+              if (input.value === '') {
+                delete this._config.columns;
+              } else {
+                const columns = Number(input.value);
+                if (!Number.isInteger(columns) || columns < 1) return;
+                this._config.columns = columns;
+              }
               fireEvent(this, 'config-changed', { config: this._config });
             }}
           />

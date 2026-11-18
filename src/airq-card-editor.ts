@@ -19,6 +19,15 @@ export class AirQualityCardEditor extends LitElement {
     { name: 'max', selector: { number: {} } }
   ];
 
+  private readonly _temperatureRangeToggleSchema = [
+    { name: 'temperature_optimal_range_enabled', selector: { boolean: {} } }
+  ];
+
+  private readonly _temperatureRangeSchema = [
+    { name: 'temperature_optimal_min', selector: { number: { mode: 'box', step: 0.1 } } },
+    { name: 'temperature_optimal_max', selector: { number: { mode: 'box', step: 0.1 } } }
+  ];
+
   setConfig(config: AirQualityCardConfig) {
     this._config = { ...config };
   }
@@ -43,9 +52,19 @@ export class AirQualityCardEditor extends LitElement {
       room: 'Room (optional)',
       columns: 'Number of columns (leave blank for automatic)',
       min: 'Absolute Min',
-      max: 'Absolute Max'
+      max: 'Absolute Max',
+      temperature_optimal_range_enabled: 'Eigenen Optimalbereich verwenden',
+      temperature_optimal_min: 'Optimalbereich von (°C)',
+      temperature_optimal_max: 'Optimalbereich bis (°C)'
     };
     return labels[schema.name] || schema.name;
+  }
+
+  private _hasValidTemperatureRange() {
+    const min = this._config.temperature_optimal_min;
+    const max = this._config.temperature_optimal_max;
+    return min !== undefined && max !== undefined &&
+      Number.isFinite(min) && Number.isFinite(max) && min < max;
   }
 
   private _settingsChanged(ev: CustomEvent<{ value: Partial<AirQualityCardConfig> }>) {
@@ -100,6 +119,29 @@ export class AirQualityCardEditor extends LitElement {
                 }}
                 allow-custom-entity
               ></ha-entity-picker>
+              ${sensorKey === 'temperature' ? html`
+                <ha-form
+                  .hass=${this.hass}
+                  .data=${this._config}
+                  .schema=${this._temperatureRangeToggleSchema}
+                  .computeLabel=${this._computeLabel}
+                  @value-changed=${this._settingsChanged}
+                ></ha-form>
+                ${this._config.temperature_optimal_range_enabled ? html`
+                  <ha-form
+                    .hass=${this.hass}
+                    .data=${this._config}
+                    .schema=${this._temperatureRangeSchema}
+                    .computeLabel=${this._computeLabel}
+                    @value-changed=${this._settingsChanged}
+                  ></ha-form>
+                  ${this._hasValidTemperatureRange() ? '' : html`
+                    <ha-alert alert-type="warning">
+                      Bitte beide Temperaturwerte eingeben. Der untere Wert muss kleiner als der obere sein.
+                    </ha-alert>
+                  `}
+                ` : ''}
+              ` : ''}
               ${sensorKey !== 'rating' ? html`
                 <ha-form
                   .hass=${this.hass}

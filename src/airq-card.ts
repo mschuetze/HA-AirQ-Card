@@ -17,6 +17,9 @@ export interface AirQualityCardConfig {
   entities: Partial<Record<SensorType, string>>;  // co2, voc, etc.
   show_bars?: SensorType[];  // explicitly typed for clarity
   _customThresholds?: Partial<Record<SensorType, { min?: number; max?: number }>>;
+  temperature_optimal_range_enabled?: boolean;
+  temperature_optimal_min?: number;
+  temperature_optimal_max?: number;
 }
 
 
@@ -255,8 +258,25 @@ export class AirQualityCard extends LitElement {
     const name = state.attributes.friendly_name || key.toUpperCase();
     const threshold = SENSOR_THRESHOLDS[key];
     const custom = (this.config as any)._customThresholds?.[key] || {};
-    const min = custom.min ?? threshold.min;
-    const max = custom.max ?? threshold.max;
+    let min = custom.min ?? threshold.min;
+    let max = custom.max ?? threshold.max;
+    if (key === 'temperature' && this.config.temperature_optimal_range_enabled) {
+      const optimalMin = this.config.temperature_optimal_min;
+      const optimalMax = this.config.temperature_optimal_max;
+      if (
+        optimalMin !== undefined &&
+        optimalMax !== undefined &&
+        Number.isFinite(optimalMin) &&
+        Number.isFinite(optimalMax) &&
+        optimalMin < optimalMax
+      ) {
+        min = optimalMin;
+        max = optimalMax;
+      } else {
+        min = threshold.min;
+        max = threshold.max;
+      }
+    }
     const absoluteMin = custom.min ?? threshold.absoluteMin;
     const absoluteMax = custom.max ?? threshold.absoluteMax;
     const unit = threshold.unit;

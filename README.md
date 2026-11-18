@@ -39,6 +39,8 @@ entities:
 
 `columns` legt die Anzahl der Sensor-Spalten fest. Wenn die Option fehlt, wird die Anzahl wie bisher automatisch anhand der Kartenbreite bestimmt. Die Einstellung ist auch im visuellen Editor verfügbar.
 
+Für die Temperatur kannst du im visuellen Editor optional einen eigenen Optimalbereich aktivieren und die Unter- und Obergrenze in °C festlegen. Ohne eigene Werte gilt weiterhin der Standardbereich von 18–26 °C.
+
   - OR you may use the UI for picking the entities
   - You may leave the Absolute MAX and MIN empty for predefined ranges or change them to what you like.
   - Hoovering over the bars will reveal the name of the entity as well as the healthy range expected.

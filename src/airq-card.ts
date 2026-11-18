@@ -103,6 +103,7 @@ function getTemperatureGradient(min: number, max: number, target: number, tolera
 
   const lowerOptimal = target - tolerance;
   const upperOptimal = target + tolerance;
+  const transitionHalfWidth = Math.min(0.5, (upperOptimal - lowerOptimal) / 4);
   const blue = '#2196f3';
   const green = '#2e7d32';
   const yellow = '#fbc02d';
@@ -129,18 +130,19 @@ function getTemperatureGradient(min: number, max: number, target: number, tolera
 
     if (lowerOptimal > min && lowerOptimal < max) {
       stops.push(
-        { value: lowerOptimal, color: blue },
-        { value: lowerOptimal, color: green }
+        { value: lowerOptimal - transitionHalfWidth, color: blue },
+        { value: lowerOptimal + transitionHalfWidth, color: green }
       );
     }
 
     if (upperOptimal < max) {
-      const hotRange = max - upperOptimal;
+      const hotStart = upperOptimal + transitionHalfWidth;
+      const hotRange = max - hotStart;
       stops.push(
-        { value: upperOptimal, color: green },
-        { value: upperOptimal, color: yellow },
-        { value: upperOptimal + hotRange / 3, color: orange },
-        { value: upperOptimal + (hotRange * 2) / 3, color: red },
+        { value: upperOptimal - transitionHalfWidth, color: green },
+        { value: hotStart, color: yellow },
+        { value: hotStart + hotRange / 3, color: orange },
+        { value: hotStart + (hotRange * 2) / 3, color: red },
         { value: max, color: darkRed }
       );
     } else {

@@ -41,7 +41,7 @@ entities:
 
 Für die Temperatur kannst du im visuellen Editor optional einen eigenen Optimalbereich aktivieren und die Unter- und Obergrenze in °C festlegen. Ohne eigene Werte gilt weiterhin der Standardbereich von 18–26 °C.
 
-Alternativ kannst du „Better Thermostat nutzen“ aktivieren und eine Climate-Entität auswählen. Deren Attribut `temperature` legt zusammen mit der einstellbaren Toleranz von 0,1 bis 2,0 °C den Optimalbereich fest. Die Toleranz wird in 0,1-°C-Schritten angepasst; die beiden Temperatur-Modi schließen sich gegenseitig aus. Die Temperaturskala reicht jeweils 10 °C unter die Untergrenze und 10 °C über die Obergrenze des aktiven Optimalbereichs.
+Alternativ kannst du „Better Thermostat nutzen“ aktivieren und eine Climate-Entität auswählen. Deren Attribut `temperature` legt zusammen mit der einstellbaren Toleranz von 0,1 bis 2,0 °C den Optimalbereich fest. Die Toleranz wird in 0,1-°C-Schritten angepasst; die beiden Temperatur-Modi schließen sich gegenseitig aus. Mit dem Slider „Temperaturskala-Bereich“ stellst du den zusätzlichen Bereich unter und über dem aktiven Optimalbereich auf 1 bis 15 °C ein (Standard: 10 °C).
 
   - OR you may use the UI for picking the entities
   - Hoovering over the bars will reveal the name of the entity as well as the healthy range expected.

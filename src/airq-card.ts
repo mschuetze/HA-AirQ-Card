@@ -23,6 +23,7 @@ export interface AirQualityCardConfig {
   better_thermostat_enabled?: boolean;
   better_thermostat_entity?: string;
   better_thermostat_tolerance?: number;
+  temperature_scale_padding?: number;
 }
 
 
@@ -187,9 +188,14 @@ export class AirQualityCard extends LitElement {
     if (!Number.isFinite(thermostatTolerance) || thermostatTolerance < 0.1 || thermostatTolerance > 2) {
       throw new Error('Better Thermostat tolerance must be between 0.1 and 2.0 °C');
     }
+    const temperatureScalePadding = config.temperature_scale_padding ?? 10;
+    if (!Number.isInteger(temperatureScalePadding) || temperatureScalePadding < 1 || temperatureScalePadding > 15) {
+      throw new Error('Temperature scale padding must be an integer between 1 and 15 °C');
+    }
     this.config = {
       ...config,
       better_thermostat_tolerance: thermostatTolerance,
+      temperature_scale_padding: temperatureScalePadding,
       temperature_optimal_range_enabled: config.better_thermostat_enabled
         ? false
         : config.temperature_optimal_range_enabled
@@ -347,6 +353,7 @@ export class AirQualityCard extends LitElement {
     const betterThermostatActive = key === 'temperature' && this.config.better_thermostat_enabled === true;
     const thermostatTarget = betterThermostatActive ? this._getBetterThermostatTarget() : undefined;
     const thermostatTolerance = this.config.better_thermostat_tolerance ?? 1;
+    const temperatureScalePadding = this.config.temperature_scale_padding ?? 10;
     let min = key === 'temperature' ? threshold.min : custom.min ?? threshold.min;
     let max = key === 'temperature' ? threshold.max : custom.max ?? threshold.max;
     if (betterThermostatActive && thermostatTarget !== undefined) {
@@ -369,8 +376,8 @@ export class AirQualityCard extends LitElement {
         max = threshold.max;
       }
     }
-    const absoluteMin = key === 'temperature' ? min - 10 : custom.min ?? threshold.absoluteMin;
-    const absoluteMax = key === 'temperature' ? max + 10 : custom.max ?? threshold.absoluteMax;
+    const absoluteMin = key === 'temperature' ? min - temperatureScalePadding : custom.min ?? threshold.absoluteMin;
+    const absoluteMax = key === 'temperature' ? max + temperatureScalePadding : custom.max ?? threshold.absoluteMax;
     const unit = threshold.unit;
     const icon = threshold.icon;
 

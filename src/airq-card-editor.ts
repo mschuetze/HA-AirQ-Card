@@ -34,6 +34,14 @@ export class AirQualityCardEditor extends LitElement {
     }
   ];
 
+  private readonly _temperatureScalePaddingSchema = [
+    {
+      name: 'temperature_scale_padding',
+      required: true,
+      selector: { number: { min: 1, max: 15, step: 1, mode: 'slider' } }
+    }
+  ];
+
   private readonly _temperatureRangeSchema = [
     { name: 'temperature_optimal_min', selector: { number: { mode: 'box', step: 0.1 } } },
     { name: 'temperature_optimal_max', selector: { number: { mode: 'box', step: 0.1 } } }
@@ -43,6 +51,7 @@ export class AirQualityCardEditor extends LitElement {
     this._config = {
       ...config,
       better_thermostat_tolerance: config.better_thermostat_tolerance ?? 1,
+      temperature_scale_padding: config.temperature_scale_padding ?? 10,
       temperature_optimal_range_enabled: config.better_thermostat_enabled
         ? false
         : config.temperature_optimal_range_enabled
@@ -65,6 +74,10 @@ export class AirQualityCardEditor extends LitElement {
       display: block;
       margin-top: 24px;
     }
+    .temperature-scale-slider {
+      display: block;
+      margin-top: 24px;
+    }
     .sensor-entry label {
       display: block;
       font-weight: bold;
@@ -82,9 +95,16 @@ export class AirQualityCardEditor extends LitElement {
       temperature_optimal_max: 'Optimalbereich max (°C)',
       better_thermostat_enabled: 'Better Thermostat nutzen',
       better_thermostat_entity: '',
-      better_thermostat_tolerance: 'Toleranz um den Sollwert (°C)'
+      better_thermostat_tolerance: 'Toleranz um den Sollwert (°C)',
+      temperature_scale_padding: 'Temperaturskala-Bereich'
     };
     return labels[schema.name] ?? schema.name;
+  }
+
+  private _computeHelper(schema: { name: string }) {
+    return schema.name === 'temperature_scale_padding'
+      ? 'Erweitert den Optimalbereich auf beiden Seiten um den gewählten Wert (z. B. 10 °C darunter und darüber).'
+      : undefined;
   }
 
   private _getBetterThermostatTarget() {
@@ -109,6 +129,9 @@ export class AirQualityCardEditor extends LitElement {
     const nextConfig = { ...this._config, ...ev.detail.value };
     if (nextConfig.better_thermostat_tolerance == null) {
       nextConfig.better_thermostat_tolerance = this._config.better_thermostat_tolerance ?? 1;
+    }
+    if (nextConfig.temperature_scale_padding == null) {
+      nextConfig.temperature_scale_padding = this._config.temperature_scale_padding ?? 10;
     }
     const manualRangeEnabled = nextConfig.temperature_optimal_range_enabled &&
       !this._config.temperature_optimal_range_enabled;
@@ -213,6 +236,15 @@ export class AirQualityCardEditor extends LitElement {
                     @value-changed=${this._settingsChanged}
                   ></ha-form>
                 ` : ''}
+                <ha-form
+                  class="temperature-scale-slider"
+                  .hass=${this.hass}
+                  .data=${this._config}
+                  .schema=${this._temperatureScalePaddingSchema}
+                  .computeLabel=${this._computeLabel}
+                  .computeHelper=${this._computeHelper}
+                  @value-changed=${this._settingsChanged}
+                ></ha-form>
               ` : ''}
             </div>
           `;

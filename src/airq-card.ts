@@ -50,6 +50,15 @@ const SENSOR_THRESHOLDS: Record<string, Thresholds> = {
   humidity: { min: 30, max: 60, unit: '%', icon: 'mdi:water-percent', absoluteMin: 0, absoluteMax: 100 },
 };
 
+function getPm25Color(value: number): string {
+  if (value < 5) return '#2e7d32';
+  if (value < 10) return '#8bc34a';
+  if (value < 15) return '#fbc02d';
+  if (value < 25) return '#fb8c00';
+  if (value <= 50) return '#e53935';
+  return '#7f0000';
+}
+
 const RATING_KEYS: Record<string, string> = {
   excellent: 'excellent',
   ausgezeichnet: 'excellent',
@@ -232,6 +241,7 @@ export class AirQualityCard extends LitElement {
     const tooltip = `${name} — healthy: ${min}–${max} ${unit}`;
 
     const fillPercent = Math.max(0, Math.min(100, ((numeric - absoluteMin) / (absoluteMax - absoluteMin)) * 100));
+    const fillColor = key === 'pm25' && Number.isFinite(numeric) ? getPm25Color(numeric) : undefined;
 
     return html`
       <div
@@ -246,7 +256,7 @@ export class AirQualityCard extends LitElement {
 
 
           <div class="bar">
-            <div class="gradient"></div>
+            <div class="gradient" style=${fillColor ? `background: ${fillColor};` : ''}></div>
             <div class="mask" style="left: ${fillPercent}%; right: 0;"></div>
           </div>
           <div class="tooltip">${tooltip}</div>

@@ -58,7 +58,7 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
 *Durch Angabe einer Klima-Entität (und dessen Temperatur-Attribut) kann eine Baseline für den Optimalbereich gesetzt werden.*
 
 - **Temperaturskala-Bereich**
-  - Legt fest, um wie viele Grad die Temperaturskala auf beiden Seiten über den Optimalbereich hinausgeht. Einstellbar von 1 bis 15 °C; der Standardwert beträgt 10 °C je Seite.
+  - Legt fest, wie weit die Temperaturskala über den aktiven Optimalbereich hinausreicht. Der gewählte Wert wird auf beiden Seiten des Optimalbereichs hinzugefügt. Einstellbar von 1 bis 15 °C je Seite; der Standardwert beträgt 10 °C.
 
 ![Einstellung Temperaturskala-Bereich im visuellen Editor.](./img/field-skala.png)
 *Die Angabe des Temperaturskala-Bereichs erweitert den durch die Klima-Entität festgelegten Optimalbereich auf beiden Seiten um den gewählten Wert*

@@ -25,6 +25,7 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
 
 ![Visueller Editor mit den Feldern Titel und Raum](./img/field-title_room.png)
 ![Vergleich der Karte mit unterschiedlich ausgefüllten Feldern](./img/crad-title_room-compare.png)
+*Oberste Karte mit ausgefüllten Feldern für `Titel` und `Raum`, zweite Karte nur mit `Raum`, dritte Karte nur mit `Titel`, unterste Karte ohne beide.*
 
 - **Anzahl der Spalten (`columns`)**
   - Legt fest, wie viele Sensor-Spalten angezeigt werden. Bleibt das Feld leer, wird die Anzahl automatisch an die Kartenbreite angepasst.
@@ -46,6 +47,10 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
 - **Eigenen Optimalbereich verwenden**
   - Schaltet einen benutzerdefinierten Temperaturbereich ein. Ohne eigene Werte gilt der Standardbereich von 18 bis 26 °C.
   - **Optimalbereich min (°C)** und **Optimalbereich max (°C)**: Lege die untere und obere Grenze fest. Der untere Wert muss kleiner als der obere sein.
+
+![Optimalbereich im visuellen Editor](./img/field-optimalbereich.png)
+*Via Editor kann ein eigener Optimalbereich/Zielbereich festgelegt werden.*
+
 - **Better Thermostat nutzen**
   - Verwendet stattdessen eine Climate-Entität. Die beiden Temperatur-Modi schließen sich gegenseitig aus.
   - **Climate-Entität**: Wähle die gewünschte Entität aus. Ihr Attribut `temperature` ist der Sollwert und wird neben dem aktuellen Temperaturwert in Klammern angezeigt.

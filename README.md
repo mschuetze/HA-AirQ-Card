@@ -24,6 +24,7 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
   - Ergänzt den Raumnamen neben dem Titel.
 
 ![Visueller Editor mit den Feldern Titel und Raum](./img/field-title_room.png)
+![Vergleich der Karte mit unterschiedlich ausgefüllten Feldern](./img/crad-title_room-compare.png)
 
 - **Anzahl der Spalten (`columns`)**
   - Legt fest, wie viele Sensor-Spalten angezeigt werden. Bleibt das Feld leer, wird die Anzahl automatisch an die Kartenbreite angepasst.

@@ -44,16 +44,14 @@ Für die Temperatur kannst du im visuellen Editor optional einen eigenen Optimal
 Alternativ kannst du „Better Thermostat nutzen“ aktivieren und eine Climate-Entität auswählen. Deren Attribut `temperature` legt zusammen mit der einstellbaren Toleranz von 0,1 bis 2,0 °C den Optimalbereich fest und wird neben dem aktuellen Temperaturwert in Klammern angezeigt. Die Toleranz wird in 0,1-°C-Schritten angepasst; die beiden Temperatur-Modi schließen sich gegenseitig aus. Mit dem Slider „Temperaturskala-Bereich“ stellst du den zusätzlichen Bereich unter und über dem aktiven Optimalbereich auf 1 bis 15 °C ein (Standard: 10 °C).
 
   - OR you may use the UI for picking the entities
-  - Hoovering over the bars will reveal the name of the entity as well as the healthy range expected.
   - An Air Quality Rating entity is optional. The card recognizes unhealthy (ungesund), poor (schlecht), moderate (mäßig), good (gut), and excellent (ausgezeichnet) values, and displays the rating in German.
-  - Rating images are no longer used by the card; there is no need to copy image files to Home Assistant.
 
-  ![AirQ Card](./img/base.png)
-  ![AirQ Card](./img/hoover.png)
-  ![AirQ Card](./img/danger.png)
-  
+## Column layouts
 
-  
+The examples below show the card with one and two sensor columns.
+
+![AirQ Card with one column](./img/card-col1.png)
+![AirQ Card with two columns](./img/card-col2.png)
 
 ## Herkunft und Lizenz
 

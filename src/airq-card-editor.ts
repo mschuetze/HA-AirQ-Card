@@ -26,6 +26,14 @@ export class AirQualityCardEditor extends LitElement {
     { name: 'better_thermostat_entity', selector: { entity: { domain: 'climate' } } }
   ];
 
+  private readonly _betterThermostatToleranceSchema = [
+    {
+      name: 'better_thermostat_tolerance',
+      required: true,
+      selector: { number: { min: 0.1, max: 2, step: 0.1, mode: 'box' } }
+    }
+  ];
+
   private readonly _temperatureRangeSchema = [
     { name: 'temperature_optimal_min', selector: { number: { mode: 'box', step: 0.1 } } },
     { name: 'temperature_optimal_max', selector: { number: { mode: 'box', step: 0.1 } } }
@@ -34,6 +42,7 @@ export class AirQualityCardEditor extends LitElement {
   setConfig(config: AirQualityCardConfig) {
     this._config = {
       ...config,
+      better_thermostat_tolerance: config.better_thermostat_tolerance ?? 1,
       temperature_optimal_range_enabled: config.better_thermostat_enabled
         ? false
         : config.temperature_optimal_range_enabled
@@ -72,9 +81,10 @@ export class AirQualityCardEditor extends LitElement {
       temperature_optimal_min: 'Optimalbereich min (°C)',
       temperature_optimal_max: 'Optimalbereich max (°C)',
       better_thermostat_enabled: 'Better Thermostat nutzen',
-      better_thermostat_entity: 'Climate-Entität'
+      better_thermostat_entity: '',
+      better_thermostat_tolerance: 'Toleranz um den Sollwert (°C)'
     };
-    return labels[schema.name] || schema.name;
+    return labels[schema.name] ?? schema.name;
   }
 
   private _getBetterThermostatTarget() {
@@ -97,6 +107,9 @@ export class AirQualityCardEditor extends LitElement {
 
   private _settingsChanged(ev: CustomEvent<{ value: Partial<AirQualityCardConfig> }>) {
     const nextConfig = { ...this._config, ...ev.detail.value };
+    if (nextConfig.better_thermostat_tolerance == null) {
+      nextConfig.better_thermostat_tolerance = this._config.better_thermostat_tolerance ?? 1;
+    }
     const manualRangeEnabled = nextConfig.temperature_optimal_range_enabled &&
       !this._config.temperature_optimal_range_enabled;
     const betterThermostatEnabled = nextConfig.better_thermostat_enabled &&
@@ -192,6 +205,13 @@ export class AirQualityCardEditor extends LitElement {
                       Bitte eine Climate-Entität mit einem gültigen Attribut „temperature“ auswählen.
                     </ha-alert>
                   ` : ''}
+                  <ha-form
+                    .hass=${this.hass}
+                    .data=${this._config}
+                    .schema=${this._betterThermostatToleranceSchema}
+                    .computeLabel=${this._computeLabel}
+                    @value-changed=${this._settingsChanged}
+                  ></ha-form>
                 ` : ''}
               ` : ''}
             </div>

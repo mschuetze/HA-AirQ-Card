@@ -22,6 +22,7 @@ export interface AirQualityCardConfig {
   temperature_optimal_max?: number;
   better_thermostat_enabled?: boolean;
   better_thermostat_entity?: string;
+  better_thermostat_tolerance?: number;
 }
 
 
@@ -88,13 +89,19 @@ function getPm25Gradient(min: number, max: number, value: number): string | unde
     .join(', ')})`;
 }
 
-function getTemperatureGradient(min: number, max: number, target: number): string | undefined {
-  if (!Number.isFinite(min) || !Number.isFinite(max) || !Number.isFinite(target) || max <= min) {
+function getTemperatureGradient(min: number, max: number, target: number, tolerance: number): string | undefined {
+  if (
+    !Number.isFinite(min) ||
+    !Number.isFinite(max) ||
+    !Number.isFinite(target) ||
+    !Number.isFinite(tolerance) ||
+    max <= min
+  ) {
     return undefined;
   }
 
-  const lowerOptimal = target - 1;
-  const upperOptimal = target + 1;
+  const lowerOptimal = target - tolerance;
+  const upperOptimal = target + tolerance;
   const blue = '#2196f3';
   const green = '#2e7d32';
   const yellow = '#fbc02d';
@@ -176,8 +183,13 @@ export class AirQualityCard extends LitElement {
     if (config.columns !== undefined && (!Number.isInteger(config.columns) || config.columns < 1)) {
       throw new Error('Columns must be a positive integer');
     }
+    const thermostatTolerance = config.better_thermostat_tolerance ?? 1;
+    if (!Number.isFinite(thermostatTolerance) || thermostatTolerance < 0.1 || thermostatTolerance > 2) {
+      throw new Error('Better Thermostat tolerance must be between 0.1 and 2.0 °C');
+    }
     this.config = {
       ...config,
+      better_thermostat_tolerance: thermostatTolerance,
       temperature_optimal_range_enabled: config.better_thermostat_enabled
         ? false
         : config.temperature_optimal_range_enabled
@@ -334,11 +346,12 @@ export class AirQualityCard extends LitElement {
     const custom = (this.config as any)._customThresholds?.[key] || {};
     const betterThermostatActive = key === 'temperature' && this.config.better_thermostat_enabled === true;
     const thermostatTarget = betterThermostatActive ? this._getBetterThermostatTarget() : undefined;
-    let min = custom.min ?? threshold.min;
-    let max = custom.max ?? threshold.max;
+    const thermostatTolerance = this.config.better_thermostat_tolerance ?? 1;
+    let min = key === 'temperature' ? threshold.min : custom.min ?? threshold.min;
+    let max = key === 'temperature' ? threshold.max : custom.max ?? threshold.max;
     if (betterThermostatActive && thermostatTarget !== undefined) {
-      min = thermostatTarget - 1;
-      max = thermostatTarget + 1;
+      min = thermostatTarget - thermostatTolerance;
+      max = thermostatTarget + thermostatTolerance;
     } else if (key === 'temperature' && this.config.temperature_optimal_range_enabled) {
       const optimalMin = this.config.temperature_optimal_min;
       const optimalMax = this.config.temperature_optimal_max;
@@ -356,8 +369,8 @@ export class AirQualityCard extends LitElement {
         max = threshold.max;
       }
     }
-    const absoluteMin = custom.min ?? threshold.absoluteMin;
-    const absoluteMax = custom.max ?? threshold.absoluteMax;
+    const absoluteMin = key === 'temperature' ? min - 10 : custom.min ?? threshold.absoluteMin;
+    const absoluteMax = key === 'temperature' ? max + 10 : custom.max ?? threshold.absoluteMax;
     const unit = threshold.unit;
     const icon = threshold.icon;
 
@@ -373,7 +386,7 @@ export class AirQualityCard extends LitElement {
       ? getPm25Gradient(absoluteMin, absoluteMax, numeric)
       : undefined;
     const temperatureGradient = betterThermostatActive && thermostatTarget !== undefined
-      ? getTemperatureGradient(absoluteMin, absoluteMax, thermostatTarget)
+      ? getTemperatureGradient(absoluteMin, absoluteMax, thermostatTarget, thermostatTolerance)
       : undefined;
     const gradient = pm25Gradient ?? temperatureGradient;
 

@@ -16,7 +16,7 @@ export interface AirQualityCardConfig {
   columns?: number;
   entities: Partial<Record<SensorType, string>>;  // co2, voc, etc.
   show_bars?: SensorType[];  // explicitly typed for clarity
-  _customThresholds?: Record<SensorType, { min?: number; max?: number }>;
+  _customThresholds?: Partial<Record<SensorType, { min?: number; max?: number }>>;
 }
 
 

@@ -8,16 +8,22 @@ export class AirQualityCardEditor extends LitElement {
   @property({ attribute: false }) hass!: HomeAssistant;
   @state() private _config!: AirQualityCardConfig;
 
+  private readonly _settingsSchema = [
+    { name: 'title', selector: { text: {} } },
+    { name: 'room', selector: { text: {} } },
+    { name: 'columns', selector: { number: { min: 1, step: 1, mode: 'box' } } }
+  ];
+
+  private readonly _thresholdSchema = [
+    { name: 'min', selector: { number: {} } },
+    { name: 'max', selector: { number: {} } }
+  ];
+
   setConfig(config: AirQualityCardConfig) {
     this._config = { ...config };
   }
 
   static styles = css`
-    .config-field {
-      display: block;
-      width: 100%;
-      margin-bottom: 12px;
-    }
     .sensor-entry {
       margin-bottom: 12px;
       padding: 6px;
@@ -31,20 +37,32 @@ export class AirQualityCardEditor extends LitElement {
     }
   `;
 
-  private _valueChanged(ev: Event, key: SensorType, field: string) {
-    if (!this._config.entities) return;
-    const target = ev.target as HTMLInputElement;
-    const newVal = field === 'min' || field === 'max' ? parseFloat(target.value) : target.value;
+  private _computeLabel(schema: { name: string }) {
+    const labels: Record<string, string> = {
+      title: 'Title',
+      room: 'Room (optional)',
+      columns: 'Number of columns (leave blank for automatic)',
+      min: 'Absolute Min',
+      max: 'Absolute Max'
+    };
+    return labels[schema.name] || schema.name;
+  }
 
-    if (!this._config.entities[key]) this._config.entities[key] = '';
+  private _settingsChanged(ev: CustomEvent<{ value: Partial<AirQualityCardConfig> }>) {
+    this._config = { ...this._config, ...ev.detail.value };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
 
-    if (!('_customThresholds' in this._config)) {
-      (this._config as any)._customThresholds = {};
-    }
-
-    (this._config as any)._customThresholds[key] = {
-      ...(this._config as any)._customThresholds?.[key],
-      [field]: newVal
+  private _thresholdsChanged(
+    ev: CustomEvent<{ value: { min?: number; max?: number } }>,
+    key: SensorType
+  ) {
+    this._config._customThresholds = {
+      ...this._config._customThresholds,
+      [key]: {
+        ...this._config._customThresholds?.[key],
+        ...ev.detail.value
+      }
     };
 
     fireEvent(this, 'config-changed', { config: this._config });
@@ -54,50 +72,18 @@ export class AirQualityCardEditor extends LitElement {
     if (!this.hass || !this._config) return html``;
 
     const sensors: SensorType[] = ['co2', 'voc', 'pm25', 'temperature', 'humidity', 'rating'];
-    const customThresholds = (this._config as any)._customThresholds || {};
 
     return html`
       <div class="card-config">
-        <ha-textfield
-          class="config-field"
-          label="Title"
-          .value=${this._config.title || ''}
-          @input=${(e: Event) => {
-            this._config.title = (e.target as HTMLInputElement).value;
-            fireEvent(this, 'config-changed', { config: this._config });
-          }}
-        ></ha-textfield>
-        <ha-textfield
-          class="config-field"
-          label="Room (optional)"
-          .value=${this._config.room || ''}
-          @input=${(e: Event) => {
-            this._config.room = (e.target as HTMLInputElement).value;
-            fireEvent(this, 'config-changed', { config: this._config });
-          }}
-        ></ha-textfield>
-        <ha-textfield
-          class="config-field"
-          label="Number of columns (leave blank for automatic)"
-          type="number"
-          min="1"
-          step="1"
-          placeholder="Automatic"
-          .value=${this._config.columns ?? ''}
-          @input=${(e: Event) => {
-            const input = e.target as HTMLInputElement;
-            if (input.value === '') {
-              delete this._config.columns;
-            } else {
-              const columns = Number(input.value);
-              if (!Number.isInteger(columns) || columns < 1) return;
-              this._config.columns = columns;
-            }
-            fireEvent(this, 'config-changed', { config: this._config });
-          }}
-        ></ha-textfield>
+        <ha-form
+          .hass=${this.hass}
+          .data=${this._config}
+          .schema=${this._settingsSchema}
+          .computeLabel=${this._computeLabel}
+          @value-changed=${this._settingsChanged}
+        ></ha-form>
         ${sensors.map(sensorKey => {
-          const threshold = customThresholds[sensorKey] || {};
+          const threshold = this._config._customThresholds?.[sensorKey] || {};
           return html`
             <div class="sensor-entry">
               <label>${sensorKey.toUpperCase()}</label>
@@ -115,20 +101,14 @@ export class AirQualityCardEditor extends LitElement {
                 allow-custom-entity
               ></ha-entity-picker>
               ${sensorKey !== 'rating' ? html`
-                <ha-textfield
-                  class="config-field"
-                  label="Absolute Min"
-                  type="number"
-                  .value=${threshold.min ?? ''}
-                  @input=${(e: Event) => this._valueChanged(e, sensorKey, 'min')}
-                ></ha-textfield>
-                <ha-textfield
-                  class="config-field"
-                  label="Absolute Max"
-                  type="number"
-                  .value=${threshold.max ?? ''}
-                  @input=${(e: Event) => this._valueChanged(e, sensorKey, 'max')}
-                ></ha-textfield>
+                <ha-form
+                  .hass=${this.hass}
+                  .data=${threshold}
+                  .schema=${this._thresholdSchema}
+                  .computeLabel=${this._computeLabel}
+                  @value-changed=${(e: CustomEvent<{ value: { min?: number; max?: number } }>) =>
+                    this._thresholdsChanged(e, sensorKey)}
+                ></ha-form>
               ` : ''}
             </div>
           `;

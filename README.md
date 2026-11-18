@@ -18,8 +18,8 @@ type: module
 
 Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort die gewünschten Sensoren aus und passe die Kartenfelder an.
 
-- **Titel (`title`)**
-  - Legt die Überschrift der Karte fest.
+- **Titel (`title`, optional)**
+  - Legt die Überschrift der Karte fest. Das Feld kann leer bleiben.
 - **Raum (`room`, optional)**
   - Ergänzt den Raumnamen neben dem Titel.
 

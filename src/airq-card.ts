@@ -50,36 +50,31 @@ const SENSOR_THRESHOLDS: Record<string, Thresholds> = {
   humidity: { min: 30, max: 60, unit: '%', icon: 'mdi:water-percent', absoluteMin: 0, absoluteMax: 100 },
 };
 
-const PM25_COLOR_STOPS = [
-  { value: 0, color: '#2e7d32' },
-  { value: 5, color: '#8bc34a' },
-  { value: 10, color: '#fbc02d' },
-  { value: 15, color: '#fb8c00' },
-  { value: 25, color: '#e53935' },
-  { value: 50, color: '#e53935' },
-  { value: 50.001, color: '#7f0000' },
+const PM25_LEVELS = [
+  { max: 5, label: 'Sehr gut', range: '0–5', color: '#2e7d32', gradientStart: 0 },
+  { max: 10, label: 'Gut', range: '5–10', color: '#8bc34a', gradientStart: 5 },
+  { max: 15, label: 'Mäßig', range: '10–15', color: '#fbc02d', gradientStart: 10 },
+  { max: 25, label: 'Schlecht', range: '15–25', color: '#fb8c00', gradientStart: 15 },
+  { max: 50, label: 'Sehr schlecht', range: '25–50', color: '#e53935', gradientStart: 25, includeMax: true },
+  { max: Infinity, label: 'Kritisch', range: '> 50', color: '#7f0000', gradientStart: 50.001 },
 ];
 
-function getPm25Color(value: number): string {
-  if (value > 50) return '#7f0000';
-
-  let color = PM25_COLOR_STOPS[0].color;
-  for (const stop of PM25_COLOR_STOPS) {
-    if (value < stop.value) break;
-    color = stop.color;
-  }
-  return color;
+function getPm25Level(value: number) {
+  return PM25_LEVELS.find(level => level.includeMax ? value <= level.max : value < level.max)
+    ?? PM25_LEVELS[PM25_LEVELS.length - 1];
 }
 
 function getPm25Gradient(min: number, max: number, value: number): string | undefined {
   if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return undefined;
 
   const stops = [
-    { value: min, color: getPm25Color(min) },
-    ...PM25_COLOR_STOPS.filter(stop => stop.value > min && stop.value < max),
+    { value: min, color: getPm25Level(min).color },
+    ...PM25_LEVELS
+      .filter(level => level.gradientStart > min && level.gradientStart < max)
+      .map(level => ({ value: level.gradientStart, color: level.color })),
     {
       value: max,
-      color: value > 50 && max <= 50 ? '#7f0000' : getPm25Color(max)
+      color: value > 50 && max <= 50 ? PM25_LEVELS[PM25_LEVELS.length - 1].color : getPm25Level(max).color
     }
   ];
 
@@ -267,7 +262,10 @@ export class AirQualityCard extends LitElement {
     const unit = threshold.unit;
     const icon = threshold.icon;
 
-    const tooltip = `${name} — healthy: ${min}–${max} ${unit}`;
+    const pm25Level = key === 'pm25' && Number.isFinite(numeric) ? getPm25Level(numeric) : undefined;
+    const tooltip = pm25Level
+      ? `${name} — ${pm25Level.label}: ${pm25Level.range} ${unit}`
+      : `${name} — optimal (${min}–${max} ${unit})`;
 
     const fillPercent = Math.max(0, Math.min(100, ((numeric - absoluteMin) / (absoluteMax - absoluteMin)) * 100));
     const pm25Gradient = key === 'pm25' && Number.isFinite(numeric)

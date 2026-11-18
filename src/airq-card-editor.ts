@@ -13,6 +13,11 @@ export class AirQualityCardEditor extends LitElement {
   }
 
   static styles = css`
+    .config-field {
+      display: block;
+      width: 100%;
+      margin-bottom: 12px;
+    }
     .sensor-entry {
       margin-bottom: 12px;
       padding: 6px;
@@ -23,15 +28,6 @@ export class AirQualityCardEditor extends LitElement {
       display: block;
       font-weight: bold;
       margin-bottom: 4px;
-    }
-    input[type="number"], input[type="text"] {
-      background-color: rgb(110, 110, 110);
-      color: #000;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 4px;
-      width: 100%;
-      box-sizing: border-box;
     }
   `;
 
@@ -62,50 +58,44 @@ export class AirQualityCardEditor extends LitElement {
 
     return html`
       <div class="card-config">
-        <label>
-          Title
-          <input
-            type="text"
-            .value=${this._config.title || ''}
-            @input=${(e: any) => {
-              this._config.title = e.target.value;
-              fireEvent(this, 'config-changed', { config: this._config });
-            }}
-          />
-        </label>
-        <label>
-          Room (optional)
-          <input
-            type="text"
-            .value=${this._config.room || ''}
-            @input=${(e: Event) => {
-              const input = e.target as HTMLInputElement;
-              this._config.room = input.value;
-              fireEvent(this, 'config-changed', { config: this._config });
-            }}
-          />
-        </label>
-        <label>
-          Number of columns (leave blank for automatic)
-          <input
-            type="number"
-            min="1"
-            step="1"
-            placeholder="Automatic"
-            .value=${this._config.columns ?? ''}
-            @input=${(e: Event) => {
-              const input = e.target as HTMLInputElement;
-              if (input.value === '') {
-                delete this._config.columns;
-              } else {
-                const columns = Number(input.value);
-                if (!Number.isInteger(columns) || columns < 1) return;
-                this._config.columns = columns;
-              }
-              fireEvent(this, 'config-changed', { config: this._config });
-            }}
-          />
-        </label>
+        <ha-textfield
+          class="config-field"
+          label="Title"
+          .value=${this._config.title || ''}
+          @input=${(e: Event) => {
+            this._config.title = (e.target as HTMLInputElement).value;
+            fireEvent(this, 'config-changed', { config: this._config });
+          }}
+        ></ha-textfield>
+        <ha-textfield
+          class="config-field"
+          label="Room (optional)"
+          .value=${this._config.room || ''}
+          @input=${(e: Event) => {
+            this._config.room = (e.target as HTMLInputElement).value;
+            fireEvent(this, 'config-changed', { config: this._config });
+          }}
+        ></ha-textfield>
+        <ha-textfield
+          class="config-field"
+          label="Number of columns (leave blank for automatic)"
+          type="number"
+          min="1"
+          step="1"
+          placeholder="Automatic"
+          .value=${this._config.columns ?? ''}
+          @input=${(e: Event) => {
+            const input = e.target as HTMLInputElement;
+            if (input.value === '') {
+              delete this._config.columns;
+            } else {
+              const columns = Number(input.value);
+              if (!Number.isInteger(columns) || columns < 1) return;
+              this._config.columns = columns;
+            }
+            fireEvent(this, 'config-changed', { config: this._config });
+          }}
+        ></ha-textfield>
         ${sensors.map(sensorKey => {
           const threshold = customThresholds[sensorKey] || {};
           return html`
@@ -125,18 +115,20 @@ export class AirQualityCardEditor extends LitElement {
                 allow-custom-entity
               ></ha-entity-picker>
               ${sensorKey !== 'rating' ? html`
-                <label>Absolute Min</label>
-                <input
+                <ha-textfield
+                  class="config-field"
+                  label="Absolute Min"
                   type="number"
                   .value=${threshold.min ?? ''}
                   @input=${(e: Event) => this._valueChanged(e, sensorKey, 'min')}
-                />
-                <label>Absolute Max</label>
-                <input
+                ></ha-textfield>
+                <ha-textfield
+                  class="config-field"
+                  label="Absolute Max"
                   type="number"
                   .value=${threshold.max ?? ''}
                   @input=${(e: Event) => this._valueChanged(e, sensorKey, 'max')}
-                />
+                ></ha-textfield>
               ` : ''}
             </div>
           `;

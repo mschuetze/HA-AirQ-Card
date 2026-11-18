@@ -35,6 +35,7 @@ export class AirQualityCardEditor extends LitElement {
       border-radius: 6px;
     }
     .temperature-range-toggle {
+      display: block;
       margin-top: 24px;
     }
     .sensor-entry label {

@@ -30,7 +30,9 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
   - Legt fest, wie viele Sensor-Spalten angezeigt werden. Bleibt das Feld leer, wird die Anzahl automatisch an die Kartenbreite angepasst.
 
 ![Karte mit 1 Spalte](./img/card-col1.png)
+*Karte mit 1 Spalte*
 ![Karte mit 2 Spalten](./img/card-col2.png)
+*Karte mit 2 Spalten*
 
 - **Sensor-Entitäten**
   - Wähle für jeden gewünschten Wert die passende Home-Assistant-Entität aus:

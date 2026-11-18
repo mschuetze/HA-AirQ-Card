@@ -42,7 +42,6 @@ entities:
 Für die Temperatur kannst du im visuellen Editor optional einen eigenen Optimalbereich aktivieren und die Unter- und Obergrenze in °C festlegen. Ohne eigene Werte gilt weiterhin der Standardbereich von 18–26 °C.
 
   - OR you may use the UI for picking the entities
-  - You may leave the Absolute MAX and MIN empty for predefined ranges or change them to what you like.
   - Hoovering over the bars will reveal the name of the entity as well as the healthy range expected.
   - An Air Quality Rating entity is optional. The card recognizes unhealthy (ungesund), poor (schlecht), moderate (mäßig), good (gut), and excellent (ausgezeichnet) values, and displays the rating in German.
   - Rating images are no longer used by the card; there is no need to copy image files to Home Assistant.

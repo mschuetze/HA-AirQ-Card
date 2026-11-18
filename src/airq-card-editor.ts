@@ -14,11 +14,6 @@ export class AirQualityCardEditor extends LitElement {
     { name: 'columns', selector: { number: { min: 1, step: 1, mode: 'box' } } }
   ];
 
-  private readonly _thresholdSchema = [
-    { name: 'min', selector: { number: {} } },
-    { name: 'max', selector: { number: {} } }
-  ];
-
   private readonly _temperatureRangeToggleSchema = [
     { name: 'temperature_optimal_range_enabled', selector: { boolean: {} } }
   ];
@@ -51,8 +46,6 @@ export class AirQualityCardEditor extends LitElement {
       title: 'Title',
       room: 'Room (optional)',
       columns: 'Number of columns (leave blank for automatic)',
-      min: 'Absolute Min',
-      max: 'Absolute Max',
       temperature_optimal_range_enabled: 'Eigenen Optimalbereich verwenden',
       temperature_optimal_min: 'Optimalbereich von (°C)',
       temperature_optimal_max: 'Optimalbereich bis (°C)'
@@ -72,21 +65,6 @@ export class AirQualityCardEditor extends LitElement {
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
-  private _thresholdsChanged(
-    ev: CustomEvent<{ value: { min?: number; max?: number } }>,
-    key: SensorType
-  ) {
-    this._config._customThresholds = {
-      ...this._config._customThresholds,
-      [key]: {
-        ...this._config._customThresholds?.[key],
-        ...ev.detail.value
-      }
-    };
-
-    fireEvent(this, 'config-changed', { config: this._config });
-  }
-
   render() {
     if (!this.hass || !this._config) return html``;
 
@@ -102,7 +80,6 @@ export class AirQualityCardEditor extends LitElement {
           @value-changed=${this._settingsChanged}
         ></ha-form>
         ${sensors.map(sensorKey => {
-          const threshold = this._config._customThresholds?.[sensorKey] || {};
           return html`
             <div class="sensor-entry">
               <label>${sensorKey.toUpperCase()}</label>
@@ -141,16 +118,6 @@ export class AirQualityCardEditor extends LitElement {
                     </ha-alert>
                   `}
                 ` : ''}
-              ` : ''}
-              ${sensorKey !== 'rating' ? html`
-                <ha-form
-                  .hass=${this.hass}
-                  .data=${threshold}
-                  .schema=${this._thresholdSchema}
-                  .computeLabel=${this._computeLabel}
-                  @value-changed=${(e: CustomEvent<{ value: { min?: number; max?: number } }>) =>
-                    this._thresholdsChanged(e, sensorKey)}
-                ></ha-form>
               ` : ''}
             </div>
           `;

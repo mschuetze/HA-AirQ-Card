@@ -41,6 +41,8 @@ entities:
 
 Für die Temperatur kannst du im visuellen Editor optional einen eigenen Optimalbereich aktivieren und die Unter- und Obergrenze in °C festlegen. Ohne eigene Werte gilt weiterhin der Standardbereich von 18–26 °C.
 
+Alternativ kannst du „Better Thermostat nutzen“ aktivieren und eine Climate-Entität auswählen. Deren Attribut `temperature` legt mit einer Toleranz von ±1 °C den Optimalbereich fest. Die beiden Temperatur-Modi schließen sich gegenseitig aus.
+
   - OR you may use the UI for picking the entities
   - Hoovering over the bars will reveal the name of the entity as well as the healthy range expected.
   - An Air Quality Rating entity is optional. The card recognizes unhealthy (ungesund), poor (schlecht), moderate (mäßig), good (gut), and excellent (ausgezeichnet) values, and displays the rating in German.

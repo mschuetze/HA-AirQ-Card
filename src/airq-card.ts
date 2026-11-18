@@ -20,6 +20,8 @@ export interface AirQualityCardConfig {
   temperature_optimal_range_enabled?: boolean;
   temperature_optimal_min?: number;
   temperature_optimal_max?: number;
+  better_thermostat_enabled?: boolean;
+  better_thermostat_entity?: string;
 }
 
 
@@ -86,6 +88,63 @@ function getPm25Gradient(min: number, max: number, value: number): string | unde
     .join(', ')})`;
 }
 
+function getTemperatureGradient(min: number, max: number, target: number): string | undefined {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || !Number.isFinite(target) || max <= min) {
+    return undefined;
+  }
+
+  const lowerOptimal = target - 1;
+  const upperOptimal = target + 1;
+  const blue = '#2196f3';
+  const green = '#2e7d32';
+  const yellow = '#fbc02d';
+  const orange = '#fb8c00';
+  const red = '#e53935';
+  const darkRed = '#7f0000';
+  let stops: { value: number; color: string }[];
+
+  if (upperOptimal <= min) {
+    const range = max - min;
+    stops = [
+      { value: min, color: yellow },
+      { value: min + range / 3, color: orange },
+      { value: min + (range * 2) / 3, color: red },
+      { value: max, color: darkRed }
+    ];
+  } else if (lowerOptimal > max) {
+    stops = [
+      { value: min, color: '#0d47a1' },
+      { value: max, color: blue }
+    ];
+  } else {
+    stops = [{ value: min, color: lowerOptimal > min ? blue : green }];
+
+    if (lowerOptimal > min && lowerOptimal < max) {
+      stops.push(
+        { value: lowerOptimal, color: blue },
+        { value: lowerOptimal, color: green }
+      );
+    }
+
+    if (upperOptimal < max) {
+      const hotRange = max - upperOptimal;
+      stops.push(
+        { value: upperOptimal, color: green },
+        { value: upperOptimal, color: yellow },
+        { value: upperOptimal + hotRange / 3, color: orange },
+        { value: upperOptimal + (hotRange * 2) / 3, color: red },
+        { value: max, color: darkRed }
+      );
+    } else {
+      stops.push({ value: max, color: green });
+    }
+  }
+
+  return `linear-gradient(to right, ${stops
+    .map(stop => `${stop.color} ${((stop.value - min) / (max - min)) * 100}%`)
+    .join(', ')})`;
+}
+
 const RATING_KEYS: Record<string, string> = {
   excellent: 'excellent',
   ausgezeichnet: 'excellent',
@@ -117,7 +176,12 @@ export class AirQualityCard extends LitElement {
     if (config.columns !== undefined && (!Number.isInteger(config.columns) || config.columns < 1)) {
       throw new Error('Columns must be a positive integer');
     }
-    this.config = config;
+    this.config = {
+      ...config,
+      temperature_optimal_range_enabled: config.better_thermostat_enabled
+        ? false
+        : config.temperature_optimal_range_enabled
+    };
   }
 
   static styles = css`
@@ -236,6 +300,16 @@ export class AirQualityCard extends LitElement {
     };
   }
 
+  private _getBetterThermostatTarget(): number | undefined {
+    const entityId = this.config.better_thermostat_entity;
+    const entity = entityId ? this.hass.states[entityId] : undefined;
+    if (!entity || entity.state === 'unavailable') return undefined;
+
+    const target = entity.attributes.temperature;
+    if (typeof target !== 'number' && typeof target !== 'string') return undefined;
+    const numericTarget = Number(target);
+    return Number.isFinite(numericTarget) ? numericTarget : undefined;
+  }
 
   renderBar(key: string, entityId: string | undefined) {
     if (!entityId) return html``;
@@ -258,9 +332,14 @@ export class AirQualityCard extends LitElement {
     const name = state.attributes.friendly_name || key.toUpperCase();
     const threshold = SENSOR_THRESHOLDS[key];
     const custom = (this.config as any)._customThresholds?.[key] || {};
+    const betterThermostatActive = key === 'temperature' && this.config.better_thermostat_enabled === true;
+    const thermostatTarget = betterThermostatActive ? this._getBetterThermostatTarget() : undefined;
     let min = custom.min ?? threshold.min;
     let max = custom.max ?? threshold.max;
-    if (key === 'temperature' && this.config.temperature_optimal_range_enabled) {
+    if (betterThermostatActive && thermostatTarget !== undefined) {
+      min = thermostatTarget - 1;
+      max = thermostatTarget + 1;
+    } else if (key === 'temperature' && this.config.temperature_optimal_range_enabled) {
       const optimalMin = this.config.temperature_optimal_min;
       const optimalMax = this.config.temperature_optimal_max;
       if (
@@ -285,12 +364,18 @@ export class AirQualityCard extends LitElement {
     const pm25Level = key === 'pm25' && Number.isFinite(numeric) ? getPm25Level(numeric) : undefined;
     const tooltip = pm25Level
       ? `${name} — ${pm25Level.label}: ${pm25Level.range} ${unit}`
+      : betterThermostatActive && thermostatTarget === undefined
+        ? `${name} — Better Thermostat: Zieltemperatur nicht verfügbar`
       : `${name} — optimal (${min}–${max} ${unit})`;
 
     const fillPercent = Math.max(0, Math.min(100, ((numeric - absoluteMin) / (absoluteMax - absoluteMin)) * 100));
     const pm25Gradient = key === 'pm25' && Number.isFinite(numeric)
       ? getPm25Gradient(absoluteMin, absoluteMax, numeric)
       : undefined;
+    const temperatureGradient = betterThermostatActive && thermostatTarget !== undefined
+      ? getTemperatureGradient(absoluteMin, absoluteMax, thermostatTarget)
+      : undefined;
+    const gradient = pm25Gradient ?? temperatureGradient;
 
     return html`
       <div
@@ -305,7 +390,7 @@ export class AirQualityCard extends LitElement {
 
 
           <div class="bar">
-            <div class="gradient" style=${pm25Gradient ? `background: ${pm25Gradient};` : ''}></div>
+            <div class="gradient" style=${gradient ? `background: ${gradient};` : ''}></div>
             <div class="mask" style="left: ${fillPercent}%; right: 0;"></div>
           </div>
           <div class="tooltip">${tooltip}</div>

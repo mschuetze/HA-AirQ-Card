@@ -18,13 +18,26 @@ export class AirQualityCardEditor extends LitElement {
     { name: 'temperature_optimal_range_enabled', selector: { boolean: {} } }
   ];
 
+  private readonly _betterThermostatToggleSchema = [
+    { name: 'better_thermostat_enabled', selector: { boolean: {} } }
+  ];
+
+  private readonly _betterThermostatEntitySchema = [
+    { name: 'better_thermostat_entity', selector: { entity: { domain: 'climate' } } }
+  ];
+
   private readonly _temperatureRangeSchema = [
     { name: 'temperature_optimal_min', selector: { number: { mode: 'box', step: 0.1 } } },
     { name: 'temperature_optimal_max', selector: { number: { mode: 'box', step: 0.1 } } }
   ];
 
   setConfig(config: AirQualityCardConfig) {
-    this._config = { ...config };
+    this._config = {
+      ...config,
+      temperature_optimal_range_enabled: config.better_thermostat_enabled
+        ? false
+        : config.temperature_optimal_range_enabled
+    };
   }
 
   static styles = css`
@@ -35,6 +48,11 @@ export class AirQualityCardEditor extends LitElement {
       border-radius: 6px;
     }
     .temperature-range-toggle {
+      display: block;
+      margin-top: 24px;
+    }
+    .better-thermostat-toggle,
+    .better-thermostat-entity {
       display: block;
       margin-top: 24px;
     }
@@ -52,9 +70,22 @@ export class AirQualityCardEditor extends LitElement {
       columns: 'Number of columns (leave blank for automatic)',
       temperature_optimal_range_enabled: 'Eigenen Optimalbereich verwenden',
       temperature_optimal_min: 'Optimalbereich min (°C)',
-      temperature_optimal_max: 'Optimalbereich max (°C)'
+      temperature_optimal_max: 'Optimalbereich max (°C)',
+      better_thermostat_enabled: 'Better Thermostat nutzen',
+      better_thermostat_entity: 'Climate-Entität'
     };
     return labels[schema.name] || schema.name;
+  }
+
+  private _getBetterThermostatTarget() {
+    const entityId = this._config.better_thermostat_entity;
+    const entity = entityId ? this.hass.states[entityId] : undefined;
+    if (!entity || entity.state === 'unavailable') return undefined;
+
+    const target = entity.attributes.temperature;
+    if (typeof target !== 'number' && typeof target !== 'string') return undefined;
+    const numericTarget = Number(target);
+    return Number.isFinite(numericTarget) ? numericTarget : undefined;
   }
 
   private _hasValidTemperatureRange() {
@@ -65,7 +96,23 @@ export class AirQualityCardEditor extends LitElement {
   }
 
   private _settingsChanged(ev: CustomEvent<{ value: Partial<AirQualityCardConfig> }>) {
-    this._config = { ...this._config, ...ev.detail.value };
+    const nextConfig = { ...this._config, ...ev.detail.value };
+    const manualRangeEnabled = nextConfig.temperature_optimal_range_enabled &&
+      !this._config.temperature_optimal_range_enabled;
+    const betterThermostatEnabled = nextConfig.better_thermostat_enabled &&
+      !this._config.better_thermostat_enabled;
+
+    if (betterThermostatEnabled) {
+      nextConfig.temperature_optimal_range_enabled = false;
+    } else if (manualRangeEnabled) {
+      nextConfig.better_thermostat_enabled = false;
+    }
+
+    if (nextConfig.better_thermostat_enabled && nextConfig.temperature_optimal_range_enabled) {
+      nextConfig.temperature_optimal_range_enabled = false;
+    }
+
+    this._config = nextConfig;
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
@@ -122,6 +169,29 @@ export class AirQualityCardEditor extends LitElement {
                       Bitte beide Temperaturwerte eingeben. Der untere Wert muss kleiner als der obere sein.
                     </ha-alert>
                   `}
+                ` : ''}
+                <ha-form
+                  class="better-thermostat-toggle"
+                  .hass=${this.hass}
+                  .data=${this._config}
+                  .schema=${this._betterThermostatToggleSchema}
+                  .computeLabel=${this._computeLabel}
+                  @value-changed=${this._settingsChanged}
+                ></ha-form>
+                ${this._config.better_thermostat_enabled ? html`
+                  <ha-form
+                    class="better-thermostat-entity"
+                    .hass=${this.hass}
+                    .data=${this._config}
+                    .schema=${this._betterThermostatEntitySchema}
+                    .computeLabel=${this._computeLabel}
+                    @value-changed=${this._settingsChanged}
+                  ></ha-form>
+                  ${this._getBetterThermostatTarget() === undefined ? html`
+                    <ha-alert alert-type="warning">
+                      Bitte eine Climate-Entität mit einem gültigen Attribut „temperature“ auswählen.
+                    </ha-alert>
+                  ` : ''}
                 ` : ''}
               ` : ''}
             </div>

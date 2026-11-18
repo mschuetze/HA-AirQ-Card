@@ -32,6 +32,7 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
 
 ![Karte mit 1 Spalte](./img/card-col1.png)
 *Karte mit 1 Spalte*
+
 ![Karte mit 2 Spalten](./img/card-col2.png)
 *Karte mit 2 Spalten*
 

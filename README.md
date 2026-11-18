@@ -60,12 +60,8 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
 - **Temperaturskala-Bereich**
   - Legt fest, um wie viele Grad die Temperaturskala auf beiden Seiten über den Optimalbereich hinausgeht. Einstellbar von 1 bis 15 °C; der Standardwert beträgt 10 °C je Seite.
 
-### Beispiele für Spaltenlayouts
-
-Die Beispiele zeigen die Karte mit einer und mit zwei Sensor-Spalten.
-
-![AirQ Card mit einer Spalte](./img/card-col1.png)
-![AirQ Card mit zwei Spalten](./img/card-col2.png)
+![Einstellung Temperaturskala-Bereich im visuellen Editor.](./img/field-skala.png)
+*Die Angabe des Temperaturskala-Bereichs erweitert den durch die Klima-Entität festgelegten Optimalbereich auf beiden Seiten um den gewählten Wert*
 
 ### YAML-Konfiguration
 

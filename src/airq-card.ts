@@ -50,13 +50,42 @@ const SENSOR_THRESHOLDS: Record<string, Thresholds> = {
   humidity: { min: 30, max: 60, unit: '%', icon: 'mdi:water-percent', absoluteMin: 0, absoluteMax: 100 },
 };
 
+const PM25_COLOR_STOPS = [
+  { value: 0, color: '#2e7d32' },
+  { value: 5, color: '#8bc34a' },
+  { value: 10, color: '#fbc02d' },
+  { value: 15, color: '#fb8c00' },
+  { value: 25, color: '#e53935' },
+  { value: 50, color: '#e53935' },
+  { value: 50.001, color: '#7f0000' },
+];
+
 function getPm25Color(value: number): string {
-  if (value < 5) return '#2e7d32';
-  if (value < 10) return '#8bc34a';
-  if (value < 15) return '#fbc02d';
-  if (value < 25) return '#fb8c00';
-  if (value <= 50) return '#e53935';
-  return '#7f0000';
+  if (value > 50) return '#7f0000';
+
+  let color = PM25_COLOR_STOPS[0].color;
+  for (const stop of PM25_COLOR_STOPS) {
+    if (value < stop.value) break;
+    color = stop.color;
+  }
+  return color;
+}
+
+function getPm25Gradient(min: number, max: number, value: number): string | undefined {
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) return undefined;
+
+  const stops = [
+    { value: min, color: getPm25Color(min) },
+    ...PM25_COLOR_STOPS.filter(stop => stop.value > min && stop.value < max),
+    {
+      value: max,
+      color: value > 50 && max <= 50 ? '#7f0000' : getPm25Color(max)
+    }
+  ];
+
+  return `linear-gradient(to right, ${stops
+    .map(stop => `${stop.color} ${((stop.value - min) / (max - min)) * 100}%`)
+    .join(', ')})`;
 }
 
 const RATING_KEYS: Record<string, string> = {
@@ -241,7 +270,9 @@ export class AirQualityCard extends LitElement {
     const tooltip = `${name} — healthy: ${min}–${max} ${unit}`;
 
     const fillPercent = Math.max(0, Math.min(100, ((numeric - absoluteMin) / (absoluteMax - absoluteMin)) * 100));
-    const fillColor = key === 'pm25' && Number.isFinite(numeric) ? getPm25Color(numeric) : undefined;
+    const pm25Gradient = key === 'pm25' && Number.isFinite(numeric)
+      ? getPm25Gradient(absoluteMin, absoluteMax, numeric)
+      : undefined;
 
     return html`
       <div
@@ -256,7 +287,7 @@ export class AirQualityCard extends LitElement {
 
 
           <div class="bar">
-            <div class="gradient" style=${fillColor ? `background: ${fillColor};` : ''}></div>
+            <div class="gradient" style=${pm25Gradient ? `background: ${pm25Gradient};` : ''}></div>
             <div class="mask" style="left: ${fillPercent}%; right: 0;"></div>
           </div>
           <div class="tooltip">${tooltip}</div>

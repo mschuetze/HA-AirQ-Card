@@ -49,12 +49,16 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
   - **Optimalbereich min (°C)** und **Optimalbereich max (°C)**: Lege die untere und obere Grenze fest. Der min-Wert muss kleiner als der max-Wert sein.
 
 ![Optimalbereich im visuellen Editor](./img/field-optimalbereich.png)
-*Via Editor kann ein eigener Optimalbereich/Zielbereich festgelegt werden.*
+*Via Editor kann ein eigener Optimalbereich/Zielbereich für die Temperatur festgelegt werden.*
 
 - **Better Thermostat nutzen**
   - Verwendet stattdessen eine Climate-Entität. Die beiden Temperatur-Modi schließen sich gegenseitig aus.
   - **Climate-Entität**: Wähle die gewünschte Entität aus. Ihr Attribut `temperature` ist der Sollwert und wird neben dem aktuellen Temperaturwert in Klammern angezeigt.
   - **Toleranz um den Sollwert (°C)**: Legt den Optimalbereich um den Sollwert fest. Einstellbar von 0,1 bis 2,0 °C in 0,1-°C-Schritten.
+
+![Durch Angabe einer Klima-Entität (und dessen Temperatur-Attribut) kann eine Baseline für den Optimalbereich gesetzt werden.](./img/field-better_thermostat.png)
+*Durch Angabe einer Klima-Entität (und dessen Temperatur-Attribut) kann eine Baseline für den Optimalbereich gesetzt werden.*
+
 - **Temperaturskala-Bereich**
   - Legt fest, um wie viele Grad die Temperaturskala auf beiden Seiten über den Optimalbereich hinausgeht. Einstellbar von 1 bis 15 °C; der Standardwert beträgt 10 °C je Seite.
 

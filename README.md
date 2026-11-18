@@ -1,25 +1,61 @@
 # AirQ Card
 
+Eine benutzerdefinierte Lovelace-Karte für Home Assistant, die Luftqualitätswerte mit farbigen Balken und Optimalbereichen darstellt.
 
-A custom Lovelace card for Home Assistant to display air quality data with healthy ranges.
+## Installation über HACS
 
-## Installation (via HACS)
-
-1. Go to HACS → Frontend → Menu (top right) → Custom Repositories
-2. Add this GitHub repository URL:
-   Type: Lovelace
-
-   `https://github.com/mschuetze/HA-AirQ-Card`
-
-3. Search for **AirQ Card** in HACS and install
-4. Add the following resource to your dashboard:
+1. Öffne in HACS **Frontend** und wähle oben rechts im Menü **Benutzerdefinierte Repositories** aus.
+2. Füge die Repository-Adresse `https://github.com/mschuetze/HA-AirQ-Card` hinzu und wähle als Kategorie **Lovelace**.
+3. Suche in HACS nach **AirQ Card** und installiere die Karte.
+4. Füge die folgende Ressource zu deinem Dashboard hinzu:
 
 ```yaml
 url: /hacsfiles/HA-AirQ-Card/airq-card.js
 type: module
 ```
 
-# Usage
+## Nutzung
+
+Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort die gewünschten Sensoren aus und passe die Kartenfelder an.
+
+- **Titel (`title`)**
+  - Legt die Überschrift der Karte fest.
+- **Raum (`room`, optional)**
+  - Ergänzt den Raumnamen neben dem Titel.
+
+![Visueller Editor mit den Feldern Titel und Raum](./img/field-title_room.png)
+
+- **Anzahl der Spalten (`columns`)**
+  - Legt fest, wie viele Sensor-Spalten angezeigt werden. Bleibt das Feld leer, wird die Anzahl automatisch an die Kartenbreite angepasst.
+- **Sensor-Entitäten**
+  - Wähle für jeden gewünschten Wert die passende Home-Assistant-Entität aus:
+    - CO₂ (`co2`)
+    - VOC (`voc`)
+    - Feinstaub PM2.5 (`pm25`)
+    - Temperatur (`temperature`)
+    - Luftfeuchtigkeit (`humidity`)
+    - Luftqualitätsbewertung (`rating`, optional)
+  - Die Luftqualitätsbewertung erkennt die Zustände `excellent` (ausgezeichnet), `good` (gut), `moderate` (mäßig), `poor` (schlecht) und `unhealthy` (ungesund) und zeigt die Bewertung auf Deutsch an.
+- **Eigenen Optimalbereich verwenden**
+  - Schaltet einen benutzerdefinierten Temperaturbereich ein. Ohne eigene Werte gilt der Standardbereich von 18 bis 26 °C.
+  - **Optimalbereich min (°C)** und **Optimalbereich max (°C)**: Lege die untere und obere Grenze fest. Der untere Wert muss kleiner als der obere sein.
+- **Better Thermostat nutzen**
+  - Verwendet stattdessen eine Climate-Entität. Die beiden Temperatur-Modi schließen sich gegenseitig aus.
+  - **Climate-Entität**: Wähle die gewünschte Entität aus. Ihr Attribut `temperature` ist der Sollwert und wird neben dem aktuellen Temperaturwert in Klammern angezeigt.
+  - **Toleranz um den Sollwert (°C)**: Legt den Optimalbereich um den Sollwert fest. Einstellbar von 0,1 bis 2,0 °C in 0,1-°C-Schritten.
+- **Temperaturskala-Bereich**
+  - Legt fest, um wie viele Grad die Temperaturskala auf beiden Seiten über den Optimalbereich hinausgeht. Einstellbar von 1 bis 15 °C; der Standardwert beträgt 10 °C je Seite.
+
+### Beispiele für Spaltenlayouts
+
+Die Beispiele zeigen die Karte mit einer und mit zwei Sensor-Spalten.
+
+![AirQ Card mit einer Spalte](./img/card-col1.png)
+![AirQ Card mit zwei Spalten](./img/card-col2.png)
+
+### YAML-Konfiguration
+
+Alternativ kannst du die Karte direkt mit YAML konfigurieren:
 
 ```yaml
 type: custom:airq-card
@@ -35,28 +71,8 @@ entities:
   rating: sensor.your_rating
 ```
 
-`room` ergänzt optional den Raumnamen im Kartentitel. Du kannst ihn im visuellen Editor als Text eingeben.
-
-`columns` legt die Anzahl der Sensor-Spalten fest. Wenn die Option fehlt, wird die Anzahl wie bisher automatisch anhand der Kartenbreite bestimmt. Die Einstellung ist auch im visuellen Editor verfügbar.
-
-Für die Temperatur kannst du im visuellen Editor optional einen eigenen Optimalbereich aktivieren und die Unter- und Obergrenze in °C festlegen. Ohne eigene Werte gilt weiterhin der Standardbereich von 18–26 °C.
-
-Alternativ kannst du „Better Thermostat nutzen“ aktivieren und eine Climate-Entität auswählen. Deren Attribut `temperature` legt zusammen mit der einstellbaren Toleranz von 0,1 bis 2,0 °C den Optimalbereich fest und wird neben dem aktuellen Temperaturwert in Klammern angezeigt. Die Toleranz wird in 0,1-°C-Schritten angepasst; die beiden Temperatur-Modi schließen sich gegenseitig aus. Mit dem Slider „Temperaturskala-Bereich“ stellst du den zusätzlichen Bereich unter und über dem aktiven Optimalbereich auf 1 bis 15 °C ein (Standard: 10 °C).
-
-  - OR you may use the UI for picking the entities
-  - An Air Quality Rating entity is optional. The card recognizes unhealthy (ungesund), poor (schlecht), moderate (mäßig), good (gut), and excellent (ausgezeichnet) values, and displays the rating in German.
-
-## Column layouts
-
-The examples below show the card with one and two sensor columns.
-
-![AirQ Card with one column](./img/card-col1.png)
-![AirQ Card with two columns](./img/card-col2.png)
-
 ## Herkunft und Lizenz
 
-Diese angepasste Version basiert auf [Air Quality Card von RR](https://github.com/UrbanTechIO/air-quality-card).
-Die ursprüngliche MIT-Lizenz und der Copyright-Hinweis aus dem Originalprojekt bleiben in [LICENSE](./LICENSE) erhalten.
-Das Originalprojekt wurde vom [Flower Card von Olen](https://github.com/Olen/lovelace-flower-card) inspiriert.
-
-  
+Diese angepasste Version basiert auf der [Air Quality Card von RR](https://github.com/UrbanTechIO/air-quality-card).
+Die ursprüngliche MIT-Lizenz und der Copyright-Hinweis aus dem Originalprojekt bleiben in der [LICENSE-Datei](./LICENSE) erhalten.
+Das Originalprojekt wurde von der [Flower Card von Olen](https://github.com/Olen/lovelace-flower-card) inspiriert.

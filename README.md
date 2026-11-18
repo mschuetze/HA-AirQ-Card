@@ -46,7 +46,7 @@ Die Karte wird bevorzugt über den visuellen Editor eingerichtet. Wähle dort di
   - Die Luftqualitätsbewertung erkennt die Zustände `excellent` (ausgezeichnet), `good` (gut), `moderate` (mäßig), `poor` (schlecht) und `unhealthy` (ungesund) und zeigt die Bewertung auf Deutsch an.
 - **Eigenen Optimalbereich verwenden**
   - Schaltet einen benutzerdefinierten Temperaturbereich ein. Ohne eigene Werte gilt der Standardbereich von 18 bis 26 °C.
-  - **Optimalbereich min (°C)** und **Optimalbereich max (°C)**: Lege die untere und obere Grenze fest. Der untere Wert muss kleiner als der obere sein.
+  - **Optimalbereich min (°C)** und **Optimalbereich max (°C)**: Lege die untere und obere Grenze fest. Der min-Wert muss kleiner als der max-Wert sein.
 
 ![Optimalbereich im visuellen Editor](./img/field-optimalbereich.png)
 *Via Editor kann ein eigener Optimalbereich/Zielbereich festgelegt werden.*

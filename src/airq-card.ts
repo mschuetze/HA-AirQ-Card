@@ -341,8 +341,9 @@ export class AirQualityCard extends LitElement {
 
     const hass = this.hass as hassWithFormat;
 
-    // Round value to 2 decimal places safely
-    const formatted = (Math.round((numeric + Number.EPSILON) * 100) / 100).toFixed(2);
+    const decimalPlaces = key === 'temperature' ? 1 : 2;
+    const precision = 10 ** decimalPlaces;
+    const formatted = (Math.round((numeric + Number.EPSILON) * precision) / precision).toFixed(decimalPlaces);
     console.log('Raw:', raw, 'Numeric:', numeric, 'Formatted:', formatted);
 
 
@@ -380,6 +381,9 @@ export class AirQualityCard extends LitElement {
     const absoluteMax = key === 'temperature' ? max + temperatureScalePadding : custom.max ?? threshold.absoluteMax;
     const unit = threshold.unit;
     const icon = threshold.icon;
+    const formattedThermostatTarget = thermostatTarget === undefined
+      ? undefined
+      : (Math.round((thermostatTarget + Number.EPSILON) * precision) / precision).toFixed(decimalPlaces);
 
     const pm25Level = key === 'pm25' && Number.isFinite(numeric) ? getPm25Level(numeric) : undefined;
     const tooltip = pm25Level
@@ -406,7 +410,9 @@ export class AirQualityCard extends LitElement {
       >
         <ha-icon class="icon" icon="${icon}"></ha-icon>
         <div class="bar-wrapper">
-          <div class="value-above">${formatted} ${unit}</div>
+        <div class="value-above">
+          ${formatted} ${unit}${formattedThermostatTarget !== undefined ? ` (${formattedThermostatTarget} ${unit})` : ''}
+        </div>
 
 
           <div class="bar">

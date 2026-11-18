@@ -34,6 +34,9 @@ export class AirQualityCardEditor extends LitElement {
       border: 1px solid #ddd;
       border-radius: 6px;
     }
+    .temperature-range-toggle {
+      margin-top: 24px;
+    }
     .sensor-entry label {
       display: block;
       font-weight: bold;
@@ -47,8 +50,8 @@ export class AirQualityCardEditor extends LitElement {
       room: 'Room (optional)',
       columns: 'Number of columns (leave blank for automatic)',
       temperature_optimal_range_enabled: 'Eigenen Optimalbereich verwenden',
-      temperature_optimal_min: 'Optimalbereich von (°C)',
-      temperature_optimal_max: 'Optimalbereich bis (°C)'
+      temperature_optimal_min: 'Optimalbereich min (°C)',
+      temperature_optimal_max: 'Optimalbereich max (°C)'
     };
     return labels[schema.name] || schema.name;
   }
@@ -98,6 +101,7 @@ export class AirQualityCardEditor extends LitElement {
               ></ha-entity-picker>
               ${sensorKey === 'temperature' ? html`
                 <ha-form
+                  class="temperature-range-toggle"
                   .hass=${this.hass}
                   .data=${this._config}
                   .schema=${this._temperatureRangeToggleSchema}
